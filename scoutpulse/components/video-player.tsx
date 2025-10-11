@@ -12,7 +12,7 @@ interface VideoPlayerProps {
   title: string
   match: string
   insights?: {
-    type: "strength" | "weakness"
+    type: "strength" | "weakness" | "neutral"
     text: string
     timestamp: string
   }[]
@@ -147,7 +147,9 @@ export function VideoPlayer({ videoUrl, title, match, insights = [] }: VideoPlay
                 className={
                   insight.type === "strength"
                     ? "bg-success/90 text-success-foreground"
-                    : "bg-destructive/90 text-destructive-foreground"
+                    : insight.type === "weakness"
+                    ? "bg-destructive/90 text-destructive-foreground"
+                    : "bg-muted/90 text-muted-foreground"
                 }
               >
                 {insight.timestamp} - {insight.text}

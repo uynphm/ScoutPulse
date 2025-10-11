@@ -1,63 +1,80 @@
 "use client"
 
 import type React from "react"
-
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { TrendingUp, TrendingDown, ChevronDown, ChevronUp, Sparkles, Target, Zap, Shield } from "lucide-react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Progress } from "@/components/ui/progress"
 import { Button } from "@/components/ui/button"
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible"
+import { getPlayerById, type Player } from "@/lib/data"
 
-interface PlayerStat {
-  label: string
-  value: number
-  max: number
-  icon?: React.ReactNode
+interface PlayerReportProps {
+  playerId?: string
 }
 
-const playerStats: PlayerStat[] = [
-  { label: "Dribbling", value: 95, max: 100, icon: <Zap className="h-4 w-4" /> },
-  { label: "Finishing", value: 92, max: 100, icon: <Target className="h-4 w-4" /> },
-  { label: "Passing", value: 88, max: 100, icon: <Sparkles className="h-4 w-4" /> },
-  { label: "Defense", value: 45, max: 100, icon: <Shield className="h-4 w-4" /> },
-]
-
-const strengths = [
-  {
-    title: "Exceptional Ball Control",
-    description: "Maintains possession under high pressure with 94% success rate in tight spaces.",
-    confidence: 98,
-  },
-  {
-    title: "Clinical Finishing",
-    description: "Converts 78% of clear chances, significantly above league average of 52%.",
-    confidence: 95,
-  },
-  {
-    title: "Vision & Creativity",
-    description: "Creates 4.2 key passes per game with innovative through balls and assists.",
-    confidence: 92,
-  },
-]
-
-const weaknesses = [
-  {
-    title: "Defensive Contribution",
-    description: "Limited tracking back with only 1.2 tackles per game, below position average.",
-    confidence: 89,
-  },
-  {
-    title: "Aerial Duels",
-    description: "Wins only 38% of aerial challenges, a notable weakness in physical contests.",
-    confidence: 85,
-  },
-]
-
-export function PlayerReport() {
+export function PlayerReport({ playerId = "messi" }: PlayerReportProps) {
+  const [player, setPlayer] = useState<Player | null>(null)
   const [strengthsOpen, setStrengthsOpen] = useState(true)
   const [weaknessesOpen, setWeaknessesOpen] = useState(true)
+
+  useEffect(() => {
+    const playerData = getPlayerById(playerId)
+    setPlayer(playerData || null)
+  }, [playerId])
+
+  if (!player) {
+    return (
+      <div className="space-y-4">
+        <Card>
+          <CardContent className="p-6">
+            <div className="text-center text-muted-foreground">
+              <p>No player data available</p>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+    )
+  }
+
+  const playerStats = [
+    { label: "Dribbling", value: player.stats.dribbling, max: 100, icon: <Zap className="h-4 w-4" /> },
+    { label: "Finishing", value: player.stats.finishing, max: 100, icon: <Target className="h-4 w-4" /> },
+    { label: "Passing", value: player.stats.passing, max: 100, icon: <Sparkles className="h-4 w-4" /> },
+    { label: "Defense", value: player.stats.defense, max: 100, icon: <Shield className="h-4 w-4" /> },
+  ]
+
+  const strengths = [
+    {
+      title: "Exceptional Ball Control",
+      description: `Maintains possession under high pressure with ${player.stats.dribbling}% success rate in tight spaces.`,
+      confidence: 98,
+    },
+    {
+      title: "Clinical Finishing",
+      description: `Converts ${player.stats.finishing}% of clear chances, significantly above league average of 52%.`,
+      confidence: 95,
+    },
+    {
+      title: "Vision & Creativity",
+      description: `Creates 4.2 key passes per game with innovative through balls and assists.`,
+      confidence: 92,
+    },
+  ]
+
+  const weaknesses = [
+    {
+      title: "Defensive Contribution",
+      description: `Limited tracking back with only ${player.stats.defense}% defensive actions, below position average.`,
+      confidence: 89,
+    },
+    {
+      title: "Aerial Duels",
+      description: `Wins only 38% of aerial challenges, a notable weakness in physical contests.`,
+      confidence: 85,
+    },
+  ]
 
   return (
     <div className="space-y-4">
@@ -73,11 +90,12 @@ export function PlayerReport() {
           <div className="space-y-3">
             <div className="flex items-center gap-3">
               <div className="h-16 w-16 rounded-full bg-muted flex items-center justify-center text-2xl font-bold">
-                LM
+                {player.name.split(' ').map(n => n[0]).join('')}
               </div>
               <div>
-                <h3 className="font-semibold text-lg">Lionel Messi</h3>
-                <p className="text-sm text-muted-foreground">Forward • Barcelona</p>
+                <h3 className="font-semibold text-lg">{player.name}</h3>
+                <p className="text-sm text-muted-foreground">{player.position} • {player.team}</p>
+                <p className="text-xs text-muted-foreground">{player.age} years old • {player.nationality}</p>
               </div>
             </div>
           </div>
@@ -183,19 +201,19 @@ export function PlayerReport() {
         <CardContent className="space-y-3">
           <div className="flex items-center justify-between text-sm">
             <span className="text-muted-foreground">Goals (Last 10 games)</span>
-            <span className="font-semibold">12</span>
+            <span className="font-semibold">{player.recentPerformance.goals}</span>
           </div>
           <div className="flex items-center justify-between text-sm">
             <span className="text-muted-foreground">Assists (Last 10 games)</span>
-            <span className="font-semibold">8</span>
+            <span className="font-semibold">{player.recentPerformance.assists}</span>
           </div>
           <div className="flex items-center justify-between text-sm">
             <span className="text-muted-foreground">Average Rating</span>
-            <span className="font-semibold">8.7/10</span>
+            <span className="font-semibold">{player.recentPerformance.averageRating}/10</span>
           </div>
           <div className="flex items-center justify-between text-sm">
             <span className="text-muted-foreground">Minutes Played</span>
-            <span className="font-semibold">847</span>
+            <span className="font-semibold">{player.recentPerformance.minutesPlayed}</span>
           </div>
         </CardContent>
       </Card>

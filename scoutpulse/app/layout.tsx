@@ -4,10 +4,11 @@ import { GeistSans } from "geist/font/sans"
 import { GeistMono } from "geist/font/mono"
 import { Analytics } from "@vercel/analytics/next"
 import { Suspense } from "react"
+import { AppProvider } from "@/lib/context"
 import "./globals.css"
 
 export const metadata: Metadata = {
-  title: "ScoutVision - AI-Powered Soccer Scouting Platform",
+  title: "ScoutPulse - AI-Powered Soccer Scouting Platform",
   description: "Comprehensive soccer player analysis with video highlights and AI-driven insights",
   generator: "v0.app",
 }
@@ -20,7 +21,9 @@ export default function RootLayout({
   return (
     <html lang="en" className="dark">
       <body className={`font-sans ${GeistSans.variable} ${GeistMono.variable} antialiased`} suppressHydrationWarning={true}>
-        <Suspense fallback={null}>{children}</Suspense>
+        <AppProvider>
+          <Suspense fallback={null}>{children}</Suspense>
+        </AppProvider>
         <Analytics />
       </body>
     </html>

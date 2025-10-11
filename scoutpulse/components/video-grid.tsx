@@ -1,5 +1,6 @@
 "use client"
 
+import { useState, useEffect } from "react"
 import { Play, Clock, Calendar, TrendingUp, TrendingDown, Filter } from "lucide-react"
 import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
@@ -12,88 +13,49 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
-
-interface VideoHighlight {
-  id: string
-  title: string
-  thumbnail: string
-  duration: string
-  match: string
-  date: string
-  type: "strength" | "weakness" | "neutral"
-  tags: string[]
-}
-
-const mockHighlights: VideoHighlight[] = [
-  {
-    id: "1",
-    title: "Exceptional Dribbling vs Real Madrid",
-    thumbnail: "/soccer-player-dribbling.png",
-    duration: "0:45",
-    match: "Barcelona vs Real Madrid",
-    date: "2024-03-15",
-    type: "strength",
-    tags: ["Dribbling", "Ball Control", "Speed"],
-  },
-  {
-    id: "2",
-    title: "Clinical Finishing - Hat Trick Goals",
-    thumbnail: "/soccer-goal-celebration.png",
-    duration: "1:20",
-    match: "Barcelona vs Sevilla",
-    date: "2024-03-10",
-    type: "strength",
-    tags: ["Finishing", "Positioning", "Shooting"],
-  },
-  {
-    id: "3",
-    title: "Defensive Positioning Issues",
-    thumbnail: "/soccer-defensive-play.jpg",
-    duration: "0:35",
-    match: "Barcelona vs Atletico",
-    date: "2024-03-05",
-    type: "weakness",
-    tags: ["Defense", "Positioning", "Tracking"],
-  },
-  {
-    id: "4",
-    title: "Perfect Through Ball Assists",
-    thumbnail: "/soccer-pass-assist.jpg",
-    duration: "1:05",
-    match: "Barcelona vs Valencia",
-    date: "2024-02-28",
-    type: "strength",
-    tags: ["Passing", "Vision", "Assists"],
-  },
-  {
-    id: "5",
-    title: "Missed Penalty Opportunities",
-    thumbnail: "/soccer-penalty-kick.png",
-    duration: "0:28",
-    match: "Barcelona vs Villarreal",
-    date: "2024-02-20",
-    type: "weakness",
-    tags: ["Penalties", "Pressure", "Composure"],
-  },
-  {
-    id: "6",
-    title: "Free Kick Masterclass",
-    thumbnail: "/soccer-free-kick.jpg",
-    duration: "0:52",
-    match: "Barcelona vs Athletic Bilbao",
-    date: "2024-02-15",
-    type: "strength",
-    tags: ["Free Kicks", "Technique", "Accuracy"],
-  },
-]
+import { videoHighlights, filterHighlightsByType, filterHighlightsByDateRange, sortHighlights, type VideoHighlight } from "@/lib/data"
+import { useApp } from "@/lib/context"
 
 export function VideoGrid() {
+  const { filters } = useApp()
+  const [highlights, setHighlights] = useState<VideoHighlight[]>(videoHighlights)
+  const [sortBy, setSortBy] = useState<"date" | "duration" | "relevance" | "confidence">("date")
+
+  useEffect(() => {
+    let filteredHighlights = videoHighlights
+
+    // Filter by selected player
+    if (filters.selectedPlayer !== "all") {
+      filteredHighlights = filteredHighlights.filter(h => h.playerId === filters.selectedPlayer)
+    }
+
+    // Filter by strength/weakness toggles
+    if (!filters.showStrengths && !filters.showWeaknesses) {
+      filteredHighlights = filteredHighlights.filter(h => h.type === "neutral")
+    } else if (!filters.showStrengths) {
+      filteredHighlights = filteredHighlights.filter(h => h.type !== "strength")
+    } else if (!filters.showWeaknesses) {
+      filteredHighlights = filteredHighlights.filter(h => h.type !== "weakness")
+    }
+
+    // Filter by confidence threshold
+    filteredHighlights = filteredHighlights.filter(h => h.aiInsights.confidence >= filters.confidenceThreshold)
+
+    // Apply date range filter
+    filteredHighlights = filterHighlightsByDateRange(filteredHighlights, filters.dateRange)
+
+    // Apply sorting
+    filteredHighlights = sortHighlights(filteredHighlights, sortBy)
+
+    setHighlights(filteredHighlights)
+  }, [filters, sortBy])
+
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
         <h2 className="text-xl font-semibold">Video Highlights</h2>
         <div className="flex items-center gap-2">
-          <p className="text-sm text-muted-foreground">{mockHighlights.length} clips found</p>
+          <p className="text-sm text-muted-foreground">{highlights.length} clips found</p>
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button variant="outline" size="sm" className="gap-2 bg-transparent">
@@ -104,21 +66,43 @@ export function VideoGrid() {
             <DropdownMenuContent align="end">
               <DropdownMenuLabel>Sort by</DropdownMenuLabel>
               <DropdownMenuSeparator />
-              <DropdownMenuItem>Most Recent</DropdownMenuItem>
-              <DropdownMenuItem>Oldest First</DropdownMenuItem>
-              <DropdownMenuItem>Duration (Short)</DropdownMenuItem>
-              <DropdownMenuItem>Duration (Long)</DropdownMenuItem>
-              <DropdownMenuItem>Relevance</DropdownMenuItem>
+              <DropdownMenuItem onClick={() => setSortBy("date")}>
+                Most Recent
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => setSortBy("duration")}>
+                Duration (Short)
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => setSortBy("confidence")}>
+                AI Confidence
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => setSortBy("relevance")}>
+                Relevance
+              </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
         </div>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        {mockHighlights.map((highlight) => (
+        {highlights.map((highlight) => (
           <VideoCard key={highlight.id} highlight={highlight} />
         ))}
       </div>
+
+      {highlights.length === 0 && (
+        <div className="text-center py-12">
+          <p className="text-muted-foreground">No highlights found matching your criteria.</p>
+          <Button 
+            variant="outline" 
+            onClick={() => {
+              setSortBy("date")
+            }}
+            className="mt-4"
+          >
+            Clear Filters
+          </Button>
+        </div>
+      )}
     </div>
   )
 }
@@ -128,7 +112,7 @@ function VideoCard({ highlight }: { highlight: VideoHighlight }) {
     <Card className="group cursor-pointer overflow-hidden transition-all hover:ring-2 hover:ring-ring">
       <div className="relative aspect-video overflow-hidden bg-muted">
         <img
-          src={highlight.thumbnail || "/placeholder.svg"}
+          src={highlight.thumbnail || "/api/placeholder/400/225"}
           alt={highlight.title}
           className="h-full w-full object-cover transition-transform group-hover:scale-105"
         />
@@ -154,11 +138,22 @@ function VideoCard({ highlight }: { highlight: VideoHighlight }) {
               Weakness
             </Badge>
           )}
+          {highlight.type === "neutral" && (
+            <Badge className="bg-secondary text-secondary-foreground">
+              Neutral
+            </Badge>
+          )}
+        </div>
+        <div className="absolute bottom-2 right-2">
+          <Badge variant="outline" className="bg-black/70 text-white border-white/30 text-xs">
+            {highlight.aiInsights.confidence}% confidence
+          </Badge>
         </div>
       </div>
 
       <CardContent className="p-4 space-y-3">
         <h3 className="font-semibold text-pretty line-clamp-2">{highlight.title}</h3>
+        <p className="text-sm text-muted-foreground line-clamp-2">{highlight.description}</p>
 
         <div className="flex items-center gap-4 text-sm text-muted-foreground">
           <div className="flex items-center gap-1">

@@ -1,6 +1,5 @@
 "use client"
 
-import { useState } from "react"
 import { Filter, Users, BarChart3, Video, TrendingUp, TrendingDown, Calendar, Trophy } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Label } from "@/components/ui/label"
@@ -8,11 +7,11 @@ import { Switch } from "@/components/ui/switch"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Separator } from "@/components/ui/separator"
 import { Slider } from "@/components/ui/slider"
+import { useApp } from "@/lib/context"
+import { players } from "@/lib/data"
 
 export function Sidebar() {
-  const [showStrengths, setShowStrengths] = useState(true)
-  const [showWeaknesses, setShowWeaknesses] = useState(true)
-  const [confidenceThreshold, setConfidenceThreshold] = useState([75])
+  const { filters, setFilters } = useApp()
 
   return (
     <aside className="w-72 border-r border-border bg-card p-6 overflow-y-auto">
@@ -28,17 +27,19 @@ export function Sidebar() {
               <Label htmlFor="player-select" className="text-sm font-medium mb-2 block">
                 Select Player
               </Label>
-              <Select defaultValue="messi">
+              <Select 
+                value={filters.selectedPlayer} 
+                onValueChange={(value) => setFilters({ selectedPlayer: value })}
+              >
                 <SelectTrigger id="player-select">
                   <SelectValue placeholder="Choose a player" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="messi">Lionel Messi</SelectItem>
-                  <SelectItem value="ronaldo">Cristiano Ronaldo</SelectItem>
-                  <SelectItem value="mbappe">Kylian Mbappé</SelectItem>
-                  <SelectItem value="haaland">Erling Haaland</SelectItem>
-                  <SelectItem value="salah">Mohamed Salah</SelectItem>
-                  <SelectItem value="debruyne">Kevin De Bruyne</SelectItem>
+                  {players.map((player) => (
+                    <SelectItem key={player.id} value={player.id}>
+                      {player.name}
+                    </SelectItem>
+                  ))}
                 </SelectContent>
               </Select>
             </div>
@@ -51,7 +52,11 @@ export function Sidebar() {
                   <TrendingUp className="h-4 w-4 text-success" />
                   Show Strengths
                 </Label>
-                <Switch id="strengths" checked={showStrengths} onCheckedChange={setShowStrengths} />
+                <Switch 
+                  id="strengths" 
+                  checked={filters.showStrengths} 
+                  onCheckedChange={(checked) => setFilters({ showStrengths: checked })} 
+                />
               </div>
 
               <div className="flex items-center justify-between">
@@ -59,7 +64,11 @@ export function Sidebar() {
                   <TrendingDown className="h-4 w-4 text-destructive" />
                   Show Weaknesses
                 </Label>
-                <Switch id="weaknesses" checked={showWeaknesses} onCheckedChange={setShowWeaknesses} />
+                <Switch 
+                  id="weaknesses" 
+                  checked={filters.showWeaknesses} 
+                  onCheckedChange={(checked) => setFilters({ showWeaknesses: checked })} 
+                />
               </div>
             </div>
 
@@ -67,12 +76,12 @@ export function Sidebar() {
 
             <div className="space-y-2">
               <Label htmlFor="confidence" className="text-sm font-medium">
-                AI Confidence Threshold: {confidenceThreshold[0]}%
+                AI Confidence Threshold: {filters.confidenceThreshold}%
               </Label>
               <Slider
                 id="confidence"
-                value={confidenceThreshold}
-                onValueChange={setConfidenceThreshold}
+                value={[filters.confidenceThreshold]}
+                onValueChange={(value) => setFilters({ confidenceThreshold: value[0] })}
                 max={100}
                 step={5}
                 className="py-2"
@@ -86,7 +95,10 @@ export function Sidebar() {
               <Label htmlFor="date-range" className="text-sm font-medium mb-2 block">
                 Match Date Range
               </Label>
-              <Select defaultValue="all">
+              <Select 
+                value={filters.dateRange} 
+                onValueChange={(value: any) => setFilters({ dateRange: value })}
+              >
                 <SelectTrigger id="date-range">
                   <SelectValue />
                 </SelectTrigger>
@@ -106,7 +118,10 @@ export function Sidebar() {
               <Label htmlFor="competition" className="text-sm font-medium mb-2 block">
                 Competition
               </Label>
-              <Select defaultValue="all">
+              <Select 
+                value={filters.competition} 
+                onValueChange={(value) => setFilters({ competition: value })}
+              >
                 <SelectTrigger id="competition">
                   <SelectValue />
                 </SelectTrigger>
@@ -126,7 +141,10 @@ export function Sidebar() {
               <Label htmlFor="playback-speed" className="text-sm font-medium mb-2 block">
                 Playback Speed
               </Label>
-              <Select defaultValue="1">
+              <Select 
+                value={filters.playbackSpeed.toString()} 
+                onValueChange={(value) => setFilters({ playbackSpeed: parseFloat(value) })}
+              >
                 <SelectTrigger id="playback-speed">
                   <SelectValue />
                 </SelectTrigger>
