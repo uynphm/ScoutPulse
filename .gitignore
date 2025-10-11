@@ -1,0 +1,88 @@
+# Environment files
+.env
+.env.local
+.env.production
+.env.development
+backend/.env
+backend/.env.local
+backend/.env.production
+backend/.env.development
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# Virtual environments
+venv/
+env/
+ENV/
+env.bak/
+venv.bak/
+backend/venv/
+backend/env/
+backend/ENV/
+
+# Database
+*.db
+*.sqlite
+*.sqlite3
+backend/*.db
+backend/*.sqlite
+backend/*.sqlite3
+
+# Logs
+*.log
+logs/
+backend/logs/
+backend/*.log
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Frontend (Next.js/React)
+scoutpulse/node_modules/
+scoutpulse/.pnp
+scoutpulse/.pnp.*
+scoutpulse/.yarn/*
+!scoutpulse/.yarn/patches
+!scoutpulse/.yarn/plugins
+!scoutpulse/.yarn/releases
+!scoutpulse/.yarn/versions
+scoutpulse/coverage/
+scoutpulse/.next/
+scoutpulse/out/
+scoutpulse/build/
+scoutpulse/.vercel
+scoutpulse/*.tsbuildinfo
+scoutpulse/next-env.d.ts
+scoutpulse/npm-debug.log*
+scoutpulse/yarn-debug.log*
+scoutpulse/yarn-error.log*
+scoutpulse/.pnpm-debug.log*
+scoutpulse/.env*
