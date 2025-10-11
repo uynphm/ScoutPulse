@@ -1,3 +1,50 @@
+// Data transformation utilities
+import { apiClient, Player as ApiPlayer, VideoHighlight as ApiVideoHighlight } from './api'
+
+// Transform API Player to Frontend Player format
+function transformPlayer(apiPlayer: ApiPlayer): Player {
+  return {
+    id: apiPlayer.id,
+    name: apiPlayer.name,
+    position: apiPlayer.position,
+    team: apiPlayer.team,
+    age: apiPlayer.age,
+    nationality: apiPlayer.nationality,
+    avatar: apiPlayer.avatar,
+    stats: apiPlayer.stats,
+    recentPerformance: {
+      goals: apiPlayer.recent_performance.goals,
+      assists: apiPlayer.recent_performance.assists,
+      averageRating: apiPlayer.recent_performance.average_rating,
+      minutesPlayed: apiPlayer.recent_performance.minutes_played,
+    }
+  }
+}
+
+// Transform API VideoHighlight to Frontend VideoHighlight format
+function transformVideoHighlight(apiHighlight: ApiVideoHighlight): VideoHighlight {
+  return {
+    id: apiHighlight.id,
+    title: apiHighlight.title,
+    thumbnail: apiHighlight.thumbnail,
+    videoUrl: apiHighlight.video_url,
+    duration: apiHighlight.duration,
+    match: apiHighlight.match,
+    date: apiHighlight.date,
+    type: apiHighlight.type,
+    tags: apiHighlight.tags,
+    playerId: apiHighlight.player_id,
+    description: apiHighlight.description,
+    timestamp: apiHighlight.timestamp,
+    aiInsights: {
+      confidence: apiHighlight.ai_insights.confidence,
+      analysis: apiHighlight.ai_insights.analysis,
+      keyMoments: apiHighlight.ai_insights.key_moments,
+    }
+  }
+}
+
+// Define frontend interfaces for type safety
 export interface Player {
   id: string
   name: string
@@ -53,210 +100,82 @@ export interface SearchResult {
   relevanceScore: number
 }
 
-// Mock data
-export const players: Player[] = [
-  {
-    id: "messi",
-    name: "Lionel Messi",
-    position: "Forward",
-    team: "Barcelona",
-    age: 36,
-    nationality: "Argentina",
-    stats: {
-      dribbling: 95,
-      finishing: 92,
-      passing: 88,
-      defense: 45,
-      speed: 85,
-      strength: 70,
-    },
-    recentPerformance: {
-      goals: 12,
-      assists: 8,
-      averageRating: 8.7,
-      minutesPlayed: 847,
-    },
-  },
-  {
-    id: "ronaldo",
-    name: "Cristiano Ronaldo",
-    position: "Forward",
-    team: "Al Nassr",
-    age: 39,
-    nationality: "Portugal",
-    stats: {
-      dribbling: 88,
-      finishing: 95,
-      passing: 82,
-      defense: 50,
-      speed: 90,
-      strength: 95,
-    },
-    recentPerformance: {
-      goals: 15,
-      assists: 5,
-      averageRating: 8.5,
-      minutesPlayed: 920,
-    },
-  },
-  {
-    id: "mbappe",
-    name: "Kylian Mbappé",
-    position: "Forward",
-    team: "Real Madrid",
-    age: 25,
-    nationality: "France",
-    stats: {
-      dribbling: 90,
-      finishing: 88,
-      passing: 75,
-      defense: 40,
-      speed: 95,
-      strength: 75,
-    },
-    recentPerformance: {
-      goals: 18,
-      assists: 6,
-      averageRating: 8.8,
-      minutesPlayed: 890,
-    },
-  },
-  {
-    id: "haaland",
-    name: "Erling Haaland",
-    position: "Forward",
-    team: "Manchester City",
-    age: 24,
-    nationality: "Norway",
-    stats: {
-      dribbling: 75,
-      finishing: 95,
-      passing: 70,
-      defense: 35,
-      speed: 85,
-      strength: 90,
-    },
-    recentPerformance: {
-      goals: 22,
-      assists: 3,
-      averageRating: 8.9,
-      minutesPlayed: 780,
-    },
-  },
-]
-
-export const videoHighlights: VideoHighlight[] = [
-  {
-    id: "1",
-    title: "Exceptional Dribbling vs Real Madrid",
-    thumbnail: "/api/placeholder/400/225",
-    videoUrl: "/videos/messi-dribbling-1.mp4",
-    duration: "0:45",
-    match: "Barcelona vs Real Madrid",
-    date: "2024-03-15",
-    type: "strength",
-    tags: ["Dribbling", "Ball Control", "Speed"],
-    playerId: "messi",
-    description: "Messi showcases his exceptional dribbling ability, beating multiple defenders in tight spaces.",
-    timestamp: { start: 120, end: 165 },
-    aiInsights: {
-      confidence: 98,
-      analysis: "Exceptional ball control under pressure with 94% success rate in tight spaces.",
-      keyMoments: ["Initial touch", "Change of direction", "Acceleration past defender"],
-    },
-  },
-  {
-    id: "2",
-    title: "Clinical Finishing - Hat Trick Goals",
-    thumbnail: "/api/placeholder/400/225",
-    videoUrl: "/videos/messi-finishing-1.mp4",
-    duration: "1:20",
-    match: "Barcelona vs Sevilla",
-    date: "2024-03-10",
-    type: "strength",
-    tags: ["Finishing", "Positioning", "Shooting"],
-    playerId: "messi",
-    description: "Three clinical finishes showcasing Messi's composure in front of goal.",
-    timestamp: { start: 45, end: 125 },
-    aiInsights: {
-      confidence: 95,
-      analysis: "Converts 78% of clear chances, significantly above league average of 52%.",
-      keyMoments: ["First goal - left foot", "Second goal - right foot", "Third goal - chip"],
-    },
-  },
-  {
-    id: "3",
-    title: "Defensive Positioning Issues",
-    thumbnail: "/api/placeholder/400/225",
-    videoUrl: "/videos/messi-defense-1.mp4",
-    duration: "0:35",
-    match: "Barcelona vs Atletico",
-    date: "2024-03-05",
-    type: "weakness",
-    tags: ["Defense", "Positioning", "Tracking"],
-    playerId: "messi",
-    description: "Examples of defensive positioning that could be improved.",
-    timestamp: { start: 200, end: 235 },
-    aiInsights: {
-      confidence: 89,
-      analysis: "Limited tracking back with only 1.2 tackles per game, below position average.",
-      keyMoments: ["Missed interception", "Poor positioning", "Late tracking"],
-    },
-  },
-  {
-    id: "4",
-    title: "Perfect Through Ball Assists",
-    thumbnail: "/api/placeholder/400/225",
-    videoUrl: "/videos/messi-passing-1.mp4",
-    duration: "1:05",
-    match: "Barcelona vs Valencia",
-    date: "2024-02-28",
-    type: "strength",
-    tags: ["Passing", "Vision", "Assists"],
-    playerId: "messi",
-    description: "Two perfectly weighted through balls leading to goals.",
-    timestamp: { start: 80, end: 145 },
-    aiInsights: {
-      confidence: 92,
-      analysis: "Creates 4.2 key passes per game with innovative through balls and assists.",
-      keyMoments: ["First assist - through ball", "Second assist - lobbed pass"],
-    },
-  },
-]
-
-// Search functionality
-export function searchPlayers(query: string): Player[] {
-  const lowercaseQuery = query.toLowerCase()
-  return players.filter(
-    (player) =>
-      player.name.toLowerCase().includes(lowercaseQuery) ||
-      player.team.toLowerCase().includes(lowercaseQuery) ||
-      player.position.toLowerCase().includes(lowercaseQuery) ||
-      player.nationality.toLowerCase().includes(lowercaseQuery)
-  )
+// API-based data functions
+export async function getPlayers(): Promise<Player[]> {
+  try {
+    const apiPlayers = await apiClient.getPlayers()
+    return apiPlayers.map(transformPlayer)
+  } catch (error) {
+    console.error('Failed to fetch players:', error)
+    return []
+  }
 }
 
-export function searchHighlights(query: string): VideoHighlight[] {
-  const lowercaseQuery = query.toLowerCase()
-  return videoHighlights.filter(
-    (highlight) =>
-      highlight.title.toLowerCase().includes(lowercaseQuery) ||
-      highlight.match.toLowerCase().includes(lowercaseQuery) ||
-      highlight.tags.some((tag) => tag.toLowerCase().includes(lowercaseQuery)) ||
-      highlight.description.toLowerCase().includes(lowercaseQuery)
-  )
+export async function getPlayerById(id: string): Promise<Player | undefined> {
+  try {
+    const apiPlayer = await apiClient.getPlayerById(id)
+    return transformPlayer(apiPlayer)
+  } catch (error) {
+    console.error(`Failed to fetch player ${id}:`, error)
+    return undefined
+  }
 }
 
-export function getPlayerById(id: string): Player | undefined {
-  return players.find((player) => player.id === id)
+export async function getHighlightsByPlayerId(playerId: string): Promise<VideoHighlight[]> {
+  try {
+    const apiHighlights = await apiClient.getHighlights(playerId)
+    return apiHighlights.map(transformVideoHighlight)
+  } catch (error) {
+    console.error(`Failed to fetch highlights for player ${playerId}:`, error)
+    return []
+  }
 }
 
-export function getHighlightsByPlayerId(playerId: string): VideoHighlight[] {
-  return videoHighlights.filter((highlight) => highlight.playerId === playerId)
+export async function getHighlightById(id: string): Promise<VideoHighlight | undefined> {
+  try {
+    const apiHighlight = await apiClient.getHighlightById(id)
+    return transformVideoHighlight(apiHighlight)
+  } catch (error) {
+    console.error(`Failed to fetch highlight ${id}:`, error)
+    return undefined
+  }
 }
 
-export function getHighlightById(id: string): VideoHighlight | undefined {
-  return videoHighlights.find((highlight) => highlight.id === id)
+export async function searchPlayers(query: string): Promise<Player[]> {
+  try {
+    const searchResults = await apiClient.search(query, 'players')
+    // For now, we'll need to fetch each player individually since search returns SearchResult
+    // In a real app, you might want to modify the API to return full player objects
+    const players: Player[] = []
+    for (const result of searchResults) {
+      if (result.type === 'player') {
+        const player = await getPlayerById(result.id)
+        if (player) players.push(player)
+      }
+    }
+    return players
+  } catch (error) {
+    console.error(`Failed to search players with query "${query}":`, error)
+    return []
+  }
+}
+
+export async function searchHighlights(query: string): Promise<VideoHighlight[]> {
+  try {
+    const searchResults = await apiClient.search(query, 'highlights')
+    // Similar to searchPlayers, we'll fetch each highlight individually
+    const highlights: VideoHighlight[] = []
+    for (const result of searchResults) {
+      if (result.type === 'highlight') {
+        const highlight = await getHighlightById(result.id)
+        if (highlight) highlights.push(highlight)
+      }
+    }
+    return highlights
+  } catch (error) {
+    console.error(`Failed to search highlights with query "${query}":`, error)
+    return []
+  }
 }
 
 // Filter functions

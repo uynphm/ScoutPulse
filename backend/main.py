@@ -111,7 +111,7 @@ async def create_new_highlight(highlight: VideoHighlightCreate, db: Session = De
 @app.get("/api/search", response_model=List[SearchResult])
 async def search(
     q: str = Query(..., min_length=1),
-    search_type: Optional[str] = Query("all", regex="^(all|players|highlights)$"),
+    search_type: Optional[str] = Query("all", pattern="^(all|players|highlights)$"),
     db: Session = Depends(get_db)
 ):
     """Search for players and highlights"""
@@ -125,7 +125,7 @@ async def search(
                 id=player.id,
                 title=player.name,
                 description=f"{player.position} • {player.team}",
-                relevanceScore=0.9  # You can implement proper scoring
+                relevance_score=0.9  # You can implement proper scoring
             )
             for player in players
         ])
@@ -138,7 +138,7 @@ async def search(
                 id=highlight.id,
                 title=highlight.title,
                 description=highlight.description,
-                relevanceScore=0.8  # You can implement proper scoring
+                relevance_score=0.8  # You can implement proper scoring
             )
             for highlight in highlights
         ])

@@ -20,8 +20,17 @@ export function PlayerReport({ playerId = "messi" }: PlayerReportProps) {
   const [weaknessesOpen, setWeaknessesOpen] = useState(true)
 
   useEffect(() => {
-    const playerData = getPlayerById(playerId)
-    setPlayer(playerData || null)
+    const loadPlayer = async () => {
+      try {
+        const playerData = await getPlayerById(playerId)
+        setPlayer(playerData || null)
+      } catch (error) {
+        console.error('Failed to load player:', error)
+        setPlayer(null)
+      }
+    }
+    
+    loadPlayer()
   }, [playerId])
 
   if (!player) {

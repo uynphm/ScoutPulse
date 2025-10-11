@@ -9,17 +9,16 @@ ScoutPulse is an advanced soccer player analysis platform designed to empower sc
 - **Interactive Video Player**: Seamlessly streams video highlights with overlaid AI insights on player performance metrics and event context.
 - **Dynamic Player Reports**: Generates real-time, AI-written textual summaries of player performance, combining stats with tactical evaluation.
 - **User-Friendly Dashboard**: Modern, responsive UI with filterable highlight lists, search suggestions, and easy navigation between players and matches.
+- **Real-time Data Integration**: Live connection between frontend and backend with real player data and video highlights.
 
 ## Technology Stack
 
-- **Frontend**: Next.js 14 with TypeScript, Tailwind CSS, and shadcn/ui components
-- **AI Integration**: 
-  - SoccerNet Dataset for annotated soccer match data
-  - Twelve Labs or IBM watsonx Vision AI for video action spotting and analysis
-  - IBM watsonx NLP for natural language query understanding and scouting report generation
-- **Backend**: Python Flask or FastAPI for AI integration and serving data
-- **Video Player**: HTML5 Video Player with interactive overlays
-- **Deployment**: Vercel for frontend hosting
+- **Frontend**: Next.js 15 with TypeScript, Tailwind CSS, and shadcn/ui components
+- **Backend**: FastAPI with Python 3.13, SQLAlchemy ORM, and SQLite database
+- **Database**: SQLite for development (easily configurable for PostgreSQL in production)
+- **API Integration**: RESTful API with automatic data transformation between snake_case (backend) and camelCase (frontend)
+- **Video Player**: HTML5 Video Player with interactive overlays and AI insights
+- **Deployment**: Vercel for frontend hosting, FastAPI backend ready for cloud deployment
 
 ## Why ScoutPulse?
 
@@ -33,39 +32,56 @@ ScoutPulse is an advanced soccer player analysis platform designed to empower sc
 ### Prerequisites
 
 - Node.js 18+ 
+- Python 3.13+
 - npm, yarn, pnpm, or bun
+- pip (Python package manager)
 
 ### Installation
 
 1. Clone the repository:
 ```bash
 git clone <repository-url>
-cd ScoutPulse/scoutpulse
+cd ScoutPulse
 ```
 
-2. Install dependencies:
+2. **Backend Setup** (FastAPI):
 ```bash
+cd backend
+python3 -m venv venv
+source venv/bin/activate  # On Windows: venv\Scripts\activate
+pip install -r requirements.txt
+python3 seed_data.py  # Seed the database with sample data
+python3 main.py  # Start the FastAPI server
+```
+
+3. **Frontend Setup** (Next.js):
+```bash
+cd scoutpulse
 npm install
-# or
-yarn install
-# or
-pnpm install
-# or
-bun install
-```
-
-3. Run the development server:
-```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-4. Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+4. **Access the Application**:
+   - Frontend: [http://localhost:3000](http://localhost:3000)
+   - Backend API: [http://localhost:8000](http://localhost:8000)
+   - API Documentation: [http://localhost:8000/docs](http://localhost:8000/docs)
+
+### Quick Start with Setup Script
+
+For automated setup, use the provided setup script:
+
+```bash
+cd backend
+chmod +x setup.sh
+./setup.sh
+```
+
+This will:
+- Create a virtual environment
+- Install all dependencies
+- Initialize the database
+- Seed with sample data
+- Start the backend server
 
 ## Next Steps
 

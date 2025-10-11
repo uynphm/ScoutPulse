@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useMemo } from "react"
 import { Play, Clock, Calendar, TrendingUp, TrendingDown, Filter } from "lucide-react"
 import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
@@ -13,16 +13,20 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
-import { videoHighlights, filterHighlightsByType, filterHighlightsByDateRange, sortHighlights, type VideoHighlight } from "@/lib/data"
+import { filterHighlightsByType, filterHighlightsByDateRange, sortHighlights, type VideoHighlight } from "@/lib/data"
 import { useApp } from "@/lib/context"
 
-export function VideoGrid() {
+interface VideoGridProps {
+  highlights?: VideoHighlight[]
+}
+
+export function VideoGrid({ highlights: initialHighlights = [] }: VideoGridProps) {
   const { filters } = useApp()
-  const [highlights, setHighlights] = useState<VideoHighlight[]>(videoHighlights)
   const [sortBy, setSortBy] = useState<"date" | "duration" | "relevance" | "confidence">("date")
 
-  useEffect(() => {
-    let filteredHighlights = videoHighlights
+  // Memoize the filtered highlights to prevent infinite loops
+  const highlights = useMemo(() => {
+    let filteredHighlights = initialHighlights
 
     // Filter by selected player
     if (filters.selectedPlayer !== "all") {
@@ -47,8 +51,8 @@ export function VideoGrid() {
     // Apply sorting
     filteredHighlights = sortHighlights(filteredHighlights, sortBy)
 
-    setHighlights(filteredHighlights)
-  }, [filters, sortBy])
+    return filteredHighlights
+  }, [initialHighlights, filters.selectedPlayer, filters.showStrengths, filters.showWeaknesses, filters.confidenceThreshold, filters.dateRange, sortBy])
 
   return (
     <div className="space-y-4">

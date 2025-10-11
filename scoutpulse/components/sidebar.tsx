@@ -1,5 +1,6 @@
 "use client"
 
+import { useState, useEffect } from "react"
 import { Filter, Users, BarChart3, Video, TrendingUp, TrendingDown, Calendar, Trophy } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Label } from "@/components/ui/label"
@@ -8,10 +9,25 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Separator } from "@/components/ui/separator"
 import { Slider } from "@/components/ui/slider"
 import { useApp } from "@/lib/context"
-import { players } from "@/lib/data"
+import { getPlayers, type Player } from "@/lib/data"
 
 export function Sidebar() {
   const { filters, setFilters } = useApp()
+  const [players, setPlayers] = useState<Player[]>([])
+
+  useEffect(() => {
+    const loadPlayers = async () => {
+      try {
+        const playersData = await getPlayers()
+        setPlayers(playersData)
+      } catch (error) {
+        console.error('Failed to load players:', error)
+        setPlayers([])
+      }
+    }
+    
+    loadPlayers()
+  }, [])
 
   return (
     <aside className="w-72 border-r border-border bg-card p-6 overflow-y-auto">
@@ -35,6 +51,7 @@ export function Sidebar() {
                   <SelectValue placeholder="Choose a player" />
                 </SelectTrigger>
                 <SelectContent>
+                  <SelectItem value="all">All Players</SelectItem>
                   {players.map((player) => (
                     <SelectItem key={player.id} value={player.id}>
                       {player.name}

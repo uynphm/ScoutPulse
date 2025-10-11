@@ -12,14 +12,15 @@ interface PlayerPageProps {
   }
 }
 
-export default function PlayerPage({ params }: PlayerPageProps) {
-  const player = getPlayerById(params.id)
+export default async function PlayerPage({ params }: PlayerPageProps) {
+  const { id } = await params
+  const player = await getPlayerById(id)
   
   if (!player) {
     notFound()
   }
 
-  const playerHighlights = getHighlightsByPlayerId(params.id)
+  const playerHighlights = await getHighlightsByPlayerId(id)
   const featuredHighlight = playerHighlights[0] // Show first highlight as featured
 
   return (
@@ -68,12 +69,12 @@ export default function PlayerPage({ params }: PlayerPageProps) {
                   <h2 className="text-xl font-semibold mb-4">
                     {player.name}'s Highlights ({playerHighlights.length})
                   </h2>
-                  <VideoGrid />
+                  <VideoGrid highlights={playerHighlights} />
                 </div>
               </div>
               
               <div className="lg:col-span-1">
-                <PlayerReport playerId={params.id} />
+                <PlayerReport playerId={id} />
               </div>
             </div>
           </div>
