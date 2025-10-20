@@ -20,7 +20,7 @@ interface AppContextType {
 }
 
 const defaultFilters: FilterState = {
-  selectedPlayer: "messi",
+  selectedPlayer: "test-player",
   showStrengths: true,
   showWeaknesses: true,
   confidenceThreshold: 75,

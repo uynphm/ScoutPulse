@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useEffect, useMemo } from "react"
-import { Play, Clock, Calendar, TrendingUp, TrendingDown, Filter } from "lucide-react"
+import { Play, Clock, Calendar, TrendingUp, TrendingDown, Filter, X } from "lucide-react"
 import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
@@ -15,6 +15,7 @@ import {
 } from "@/components/ui/dropdown-menu"
 import { filterHighlightsByType, filterHighlightsByDateRange, sortHighlights, type VideoHighlight } from "@/lib/data"
 import { useApp } from "@/lib/context"
+import { VideoPlayer } from "@/components/video-player"
 
 interface VideoGridProps {
   highlights?: VideoHighlight[]
@@ -23,6 +24,28 @@ interface VideoGridProps {
 export function VideoGrid({ highlights: initialHighlights = [] }: VideoGridProps) {
   const { filters } = useApp()
   const [sortBy, setSortBy] = useState<"date" | "duration" | "relevance" | "confidence">("date")
+  const [selectedHighlight, setSelectedHighlight] = useState<VideoHighlight | null>(null)
+
+  useEffect(() => {
+    if (!selectedHighlight) {
+      return
+    }
+
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") {
+        setSelectedHighlight(null)
+      }
+    }
+
+    window.addEventListener("keydown", handleKeyDown)
+    const previousOverflow = document.body.style.overflow
+    document.body.style.overflow = "hidden"
+
+    return () => {
+      window.removeEventListener("keydown", handleKeyDown)
+      document.body.style.overflow = previousOverflow
+    }
+  }, [selectedHighlight])
 
   // Memoize the filtered highlights to prevent infinite loops
   const highlights = useMemo(() => {
@@ -89,7 +112,11 @@ export function VideoGrid({ highlights: initialHighlights = [] }: VideoGridProps
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         {highlights.map((highlight) => (
-          <VideoCard key={highlight.id} highlight={highlight} />
+          <VideoCard
+            key={highlight.id}
+            highlight={highlight}
+            onClick={() => setSelectedHighlight(highlight)}
+          />
         ))}
       </div>
 
@@ -107,13 +134,54 @@ export function VideoGrid({ highlights: initialHighlights = [] }: VideoGridProps
           </Button>
         </div>
       )}
+
+      {selectedHighlight && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center px-4">
+          <div
+            className="absolute inset-0 bg-black/80"
+            onClick={() => setSelectedHighlight(null)}
+          />
+          <div className="relative z-10 w-full max-w-4xl space-y-4">
+            <Button
+              variant="ghost"
+              size="icon"
+              className="absolute -top-10 right-0 text-white hover:bg-white/20"
+              onClick={() => setSelectedHighlight(null)}
+            >
+              <X className="h-5 w-5" />
+            </Button>
+            <VideoPlayer
+              videoUrl={selectedHighlight.videoUrl}
+              title={selectedHighlight.title}
+              match={`${selectedHighlight.match} • ${new Date(selectedHighlight.date).toLocaleDateString()}`}
+              insights={[
+                {
+                  type: selectedHighlight.type,
+                  text: selectedHighlight.aiInsights.analysis,
+                  timestamp: `${Math.floor(selectedHighlight.timestamp.start / 60)}:${(selectedHighlight.timestamp.start % 60)
+                    .toString()
+                    .padStart(2, "0")}`,
+                },
+              ]}
+            />
+          </div>
+        </div>
+      )}
     </div>
   )
 }
 
-function VideoCard({ highlight }: { highlight: VideoHighlight }) {
+interface VideoCardProps {
+  highlight: VideoHighlight
+  onClick: () => void
+}
+
+function VideoCard({ highlight, onClick }: VideoCardProps) {
   return (
-    <Card className="group cursor-pointer overflow-hidden transition-all hover:ring-2 hover:ring-ring">
+    <Card
+      className="group cursor-pointer overflow-hidden transition-all hover:ring-2 hover:ring-ring"
+      onClick={onClick}
+    >
       <div className="relative aspect-video overflow-hidden bg-muted">
         <img
           src={highlight.thumbnail || "/api/placeholder/400/225"}

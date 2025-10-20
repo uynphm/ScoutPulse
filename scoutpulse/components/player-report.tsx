@@ -14,7 +14,7 @@ interface PlayerReportProps {
   playerId?: string
 }
 
-export function PlayerReport({ playerId = "messi" }: PlayerReportProps) {
+export function PlayerReport({ playerId = "test-player" }: PlayerReportProps) {
   const [player, setPlayer] = useState<Player | null>(null)
   const [strengthsOpen, setStrengthsOpen] = useState(true)
   const [weaknessesOpen, setWeaknessesOpen] = useState(true)

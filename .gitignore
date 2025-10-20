@@ -21,6 +21,7 @@ downloads/
 eggs/
 .eggs/
 lib/
+!scoutpulse/lib/
 lib64/
 parts/
 sdist/
@@ -33,6 +34,7 @@ MANIFEST
 
 # Virtual environments
 venv/
+.venv/
 env/
 ENV/
 env.bak/

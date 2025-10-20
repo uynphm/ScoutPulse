@@ -41,9 +41,8 @@ fi
 echo "🗄️ Initializing database..."
 python -c "from database import engine; from models import Base; Base.metadata.create_all(bind=engine)"
 
-# Seed database
-echo "🌱 Seeding database with initial data..."
-python seed_data.py
+# Database is ready (no seed data - use video processing to populate)
+echo "✅ Database initialized (empty - ready for video processing)"
 
 echo "✅ ScoutPulse Backend setup complete!"
 echo ""

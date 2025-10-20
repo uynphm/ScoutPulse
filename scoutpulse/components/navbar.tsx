@@ -1,4 +1,5 @@
-import { Search, User, Settings } from "lucide-react"
+import Link from "next/link"
+import { Search, User, Settings, Upload } from "lucide-react"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 
@@ -6,12 +7,12 @@ export function Navbar() {
   return (
     <header className="border-b border-border bg-card">
       <div className="flex h-16 items-center px-6 gap-4">
-        <div className="flex items-center gap-2">
+        <Link href="/" className="flex items-center gap-2 hover:opacity-80 transition-opacity">
           <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary">
-            <span className="text-lg font-bold text-primary-foreground">SV</span>
+            <span className="text-lg font-bold text-primary-foreground">SP</span>
           </div>
           <span className="text-xl font-bold text-foreground">ScoutPulse</span>
-        </div>
+        </Link>
 
         <div className="flex-1 max-w-2xl mx-auto">
           <div className="relative">
@@ -25,6 +26,12 @@ export function Navbar() {
         </div>
 
         <div className="flex items-center gap-2">
+          <Link href="/upload">
+            <Button variant="default" size="sm" className="gap-2">
+              <Upload className="h-4 w-4" />
+              Upload Video
+            </Button>
+          </Link>
           <Button variant="ghost" size="icon">
             <Settings className="h-5 w-5" />
           </Button>

@@ -48,6 +48,24 @@ def get_highlights_by_player_id(db: Session, player_id: str) -> List[models.Vide
 def get_all_highlights(db: Session, skip: int = 0, limit: int = 100) -> List[models.VideoHighlightModel]:
     return db.query(models.VideoHighlightModel).offset(skip).limit(limit).all()
 
+def get_highlights(
+    db: Session,
+    *,
+    player_id: Optional[str] = None,
+    highlight_type: Optional[str] = None,
+    skip: int = 0,
+    limit: int = 100,
+) -> List[models.VideoHighlightModel]:
+    query = db.query(models.VideoHighlightModel)
+
+    if player_id:
+        query = query.filter(models.VideoHighlightModel.player_id == player_id)
+
+    if highlight_type and highlight_type != "all":
+        query = query.filter(models.VideoHighlightModel.type == highlight_type)
+
+    return query.offset(skip).limit(limit).all()
+
 def create_highlight(db: Session, highlight: schemas.VideoHighlightCreate) -> models.VideoHighlightModel:
     db_highlight = models.VideoHighlightModel(
         id=highlight.id,
@@ -68,6 +86,28 @@ def create_highlight(db: Session, highlight: schemas.VideoHighlightCreate) -> mo
     db.commit()
     db.refresh(db_highlight)
     return db_highlight
+
+
+def delete_highlight(db: Session, highlight_id: str) -> bool:
+    highlight = get_highlight_by_id(db, highlight_id)
+    if not highlight:
+        return False
+
+    db.delete(highlight)
+    db.commit()
+    return True
+
+
+def delete_player(db: Session, player_id: str) -> bool:
+    player = get_player_by_id(db, player_id)
+    if not player:
+        return False
+
+    # Remove associated highlights first
+    db.query(models.VideoHighlightModel).filter(models.VideoHighlightModel.player_id == player_id).delete(synchronize_session=False)
+    db.delete(player)
+    db.commit()
+    return True
 
 def search_highlights(db: Session, query: str) -> List[models.VideoHighlightModel]:
     """Search highlights by title, match, tags, or description"""

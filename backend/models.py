@@ -3,6 +3,7 @@ from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
 from datetime import datetime
 import os
+from pathlib import Path
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -10,9 +11,20 @@ load_dotenv()
 # Database URL - using SQLite for development, PostgreSQL for production
 DATABASE_URL = os.getenv("DATABASE_URL", "sqlite:///./scoutpulse.db")
 
+connect_args = {}
+if DATABASE_URL.startswith("sqlite"):
+    raw_path = DATABASE_URL.split("sqlite:///")[-1]
+    db_path = Path(raw_path)
+    if not db_path.is_absolute():
+        base_dir = Path(__file__).resolve().parent
+        db_path = (base_dir / db_path).resolve()
+    db_path.parent.mkdir(parents=True, exist_ok=True)
+    DATABASE_URL = f"sqlite:///{db_path}"
+    connect_args = {"check_same_thread": False}
+
 engine = create_engine(
     DATABASE_URL,
-    connect_args={"check_same_thread": False} if "sqlite" in DATABASE_URL else {}
+    connect_args=connect_args
 )
 
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
